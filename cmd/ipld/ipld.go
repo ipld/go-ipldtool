@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/ipld/go-ipldtool"
+	"github.com/ipld/go-ipldtool/app"
 )
 
 func main() {

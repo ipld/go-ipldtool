@@ -7,8 +7,8 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/ipld/go-ipldtool/basic"
-	"github.com/ipld/go-ipldtool/schema"
+	"github.com/ipld/go-ipldtool/app/basic"
+	"github.com/ipld/go-ipldtool/app/schema"
 )
 
 func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) (int, error) {
