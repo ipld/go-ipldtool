@@ -18,6 +18,11 @@ func StringIsPathish(x string) bool {
 
 // ParseDataSourceArg returns a reader for data based on the argument,
 // and a Link if the argument was of that kind.
+//
+// Errors:
+//
+//   - ipldtool-error-invalid-args -- if the input arg can't be made into a readable stream.
+//
 func ParseDataSourceArg(inputArg string) (reader *bufio.Reader, link datamodel.Link, err error) {
 	switch {
 	case inputArg == "-": // stdin
@@ -25,7 +30,7 @@ func ParseDataSourceArg(inputArg string) (reader *bufio.Reader, link datamodel.L
 	case StringIsPathish(inputArg): // looks like a filename
 		f, err := os.Open(inputArg)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, ErrInvalidArgs("arg looks like a filename but cannot be opened", err)
 		}
 		reader = bufio.NewReader(f)
 	default: // hope this is a CID
