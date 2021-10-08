@@ -95,6 +95,7 @@ map{
 }
 ```
 
+
 ### Pathing
 
 We can also "path" through data -- stepping through a structure and looking at only a point that interests us.
@@ -113,6 +114,24 @@ reached the value (the string `"world"`):
 ```text
 string{"world"}
 ```
+
+
+### Changing the output codec
+
+IPLD supports many codecs.  Any codec that the ipldtool was compiled with support for can be used as an output format for the read command:
+
+[testmark]:# (hello-output/script)
+```bash
+echo '{"hello": "world"}' | ipld read --output=codec:cbor -
+```
+
+The above command produces output in CBOR (which is a bit gnarly here, because it's binary, but you get the idea):
+
+[testmark]:# (hello-output/output)
+```text
+¡ehelloeworld
+```
+
 
 ### Raw passthrough mode
 
