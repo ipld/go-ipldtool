@@ -3,7 +3,6 @@ package basic
 import (
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/urfave/cli/v2"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/ipld/go-ipld-prime/codec/dagjson"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/ipld/go-ipld-prime/node/basicnode"
-	"github.com/ipld/go-ipld-prime/printer"
 	"github.com/ipld/go-ipld-prime/schema"
 	"github.com/ipld/go-ipld-prime/traversal"
 
@@ -143,23 +141,14 @@ var Cmd_Read = &cli.Command{
 		//  We don't need this yet, but it's good practice to at make sure all the args are sane and we know what to do with them before starting real work.
 		var encoder codec.Encoder
 		switch args.String("output") {
-		case "", "debug":
-			encoder = func(n datamodel.Node, wr io.Writer) error {
-				printer.Fprint(wr, n)
-				return nil
-			}
 		case "raw":
 			panic("unreachable (already handled this case earlier)")
 		case "html":
 			panic("todo")
 		default:
-			switch {
-			case strings.HasPrefix(args.String("output"), "codec:0x"):
-				panic("todo")
-			case strings.HasPrefix(args.String("output"), "codec:"):
-				panic("todo")
-			default:
-				return fmt.Errorf("output argument format not recognized")
+			encoder, err = shared.ParseEncoderArg(args.String("output"), "debug", "output")
+			if err != nil {
+				return err
 			}
 		}
 

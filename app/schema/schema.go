@@ -6,8 +6,6 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/ipld/go-ipld-prime"
-	"github.com/ipld/go-ipld-prime/codec"
-	"github.com/ipld/go-ipld-prime/codec/json"
 	"github.com/ipld/go-ipld-prime/node/bindnode"
 	"github.com/ipld/go-ipld-prime/schema"
 	schemadmt "github.com/ipld/go-ipld-prime/schema/dmt"
@@ -71,9 +69,10 @@ var Cmd_Schema = &cli.Command{
 			dmtn := bindnode.Wrap(dmt, schemadmt.Type.Schema.Type())
 
 			// Figure out the output format.
-			// FIXME: should use very similar logic to the 'ipld read' subcommand.  Is hardcoded for tonight.
-			var encoder codec.Encoder
-			encoder = json.Encode
+			encoder, err := shared.ParseEncoderArg(args.String("output"), "codec:json", "output")
+			if err != nil {
+				return err
+			}
 
 			// Print out the DMT.
 			// TODO: or do something else if the "save" flag is set.
