@@ -6,6 +6,8 @@ import (
 	"github.com/ipld/go-ipld-prime/schema"
 	schemadmt "github.com/ipld/go-ipld-prime/schema/dmt"
 	schemadsl "github.com/ipld/go-ipld-prime/schema/dsl"
+
+	"github.com/ipld/go-ipldtool/errors"
 )
 
 // DSLParse is just the `schemadsl.Parse` feature, but wrapped in error tagging.
@@ -17,7 +19,12 @@ import (
 func DSLParse(inputName string, input io.Reader) (*schemadmt.Schema, error) {
 	dmt, err := schemadsl.Parse(inputName, input)
 	if err != nil {
-		return nil, ErrSchemaDSLParseFailed(err)
+		return nil, &errors.Error{
+			ErrCode_SchemaDSLParseFailed,
+			err.Error(),
+			nil,
+			err,
+		}
 	}
 	return dmt, nil
 }
@@ -32,7 +39,12 @@ func SchemaCompile(dmt *schemadmt.Schema) (*schema.TypeSystem, error) {
 	var ts schema.TypeSystem
 	ts.Init()
 	if err := schemadmt.Compile(&ts, dmt); err != nil {
-		return nil, ErrSchemaCompileFailed(err)
+		return nil, &errors.Error{
+			ErrCode_SchemaCompileFailed,
+			err.Error(),
+			nil,
+			err,
+		}
 	}
 	return &ts, nil
 }
