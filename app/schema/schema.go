@@ -7,9 +7,7 @@ import (
 
 	"github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/node/bindnode"
-	"github.com/ipld/go-ipld-prime/schema"
 	schemadmt "github.com/ipld/go-ipld-prime/schema/dmt"
-	schemadsl "github.com/ipld/go-ipld-prime/schema/dsl"
 
 	"github.com/ipld/go-ipldtool/app/shared"
 )
@@ -36,51 +34,62 @@ var Cmd_Schema = &cli.Command{
 				DefaultText: "codec:json",
 			},
 		},
-		Action: func(args *cli.Context) error {
-			// Parse positional args.
-			var sourceArg string
-			switch args.Args().Len() {
-			case 1:
-				sourceArg = args.Args().Get(0)
-			default:
-				fmt.Errorf("schema parse command needs exactly one positional argument")
-			}
-
-			// Let's get some data!
-			inputReader, _, err := shared.ParseDataSourceArg(sourceArg)
-			if err != nil {
-				return err
-			}
-
-			// Parse!
-			dmt, err := schemadsl.Parse(sourceArg, inputReader)
-			if err != nil {
-				return err // TODO probably need an error tagging strategy here.
-			}
-
-			// Compile!  Maybe.  Just to make sure we can.
-			var ts schema.TypeSystem
-			ts.Init()
-			if err := schemadmt.Compile(&ts, dmt); err != nil {
-				return err // TODO probably need an error tagging strategy here.
-			}
-
-			// Regard the DMT as a node (which we'll need for either printout or for saving it).
-			dmtn := bindnode.Wrap(dmt, schemadmt.Type.Schema.Type())
-
-			// Figure out the output format.
-			encoder, err := shared.ParseEncoderArg(args.String("output"), "codec:json", "output")
-			if err != nil {
-				return err
-			}
-
-			// Print out the DMT.
-			// TODO: or do something else if the "save" flag is set.
-			return ipld.EncodeStreaming(args.App.Writer, dmtn, encoder)
-		},
+		Action: Action_SchemaParse,
 	}, {
 		Name:  "compile",
 		Usage: "Compile a schema DMT document, exiting nonzero and reporting errors if anything is logically invalid.",
 	}},
 	// Someday: it may be neat to have a handful of well-known transforms, like: strip all rename directives, or make all representations default, etc.
+}
+
+// Action_SchemaParse is the function that implements the `ipld schema parse` subcommand's behaviors.
+//
+// Errors:
+//
+//   - ipldtool-error-invalid-args -- for incomprehensible or invalid arguments.
+//   - schema-dsl-parse-failed -- if the DSL document didn't parse.
+//   - schema-compile-failed -- if the schema was parsed, but was logically invalid.
+//
+func Action_SchemaParse(args *cli.Context) error {
+	// Parse positional args.
+	var sourceArg string
+	switch args.Args().Len() {
+	case 1:
+		sourceArg = args.Args().Get(0)
+	default:
+		fmt.Errorf("schema parse command needs exactly one positional argument")
+	}
+
+	// Let's get some data!
+	inputReader, _, err := shared.ParseDataSourceArg(sourceArg)
+	if err != nil {
+		return err
+	}
+
+	// Parse!
+	dmt, err := DSLParse(sourceArg, inputReader)
+	if err != nil {
+		return err
+	}
+
+	// Compile!  Maybe.  Just to make sure we can.
+	if !args.Bool("no-compile") {
+		_, err = SchemaCompile(dmt)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Regard the DMT as a node (which we'll need for either printout or for saving it).
+	dmtn := bindnode.Wrap(dmt, schemadmt.Type.Schema.Type())
+
+	// Figure out the output format.
+	encoder, err := shared.ParseEncoderArg(args.String("output"), "codec:json", "output")
+	if err != nil {
+		return err
+	}
+
+	// Print out the DMT.
+	// TODO: or do something else if the "save" flag is set.
+	return ipld.EncodeStreaming(args.App.Writer, dmtn, encoder)
 }
