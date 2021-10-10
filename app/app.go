@@ -32,6 +32,6 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) (int, error)
 	//  (You can ignore the exit code, and still just look at the error.
 	//   This will be useful to have because we'll also have a web daemon mode which calls mostly the same functions,
 	//    but will have to route the same error codes into the different int space of HTTP status codes.)
-	fmt.Fprintf(os.Stderr, "error: %s", err)
+	fmt.Fprintf(os.Stderr, "error: %s\n", err)
 	return 1, err
 }
