@@ -2,6 +2,7 @@ package basic
 
 import (
 	"context"
+	"encoding/base32"
 
 	flatfs "github.com/ipfs/go-ds-flatfs"
 	"github.com/urfave/cli/v2"
@@ -29,13 +30,16 @@ func Action_Put(args *cli.Context) error {
 
 	store := dsadapter.Adapter{
 		Wrapped: ds,
+		EscapingFunc: func(raw string) string {
+			return base32.StdEncoding.EncodeToString([]byte(raw))
+		},
 	}
 
-	if err := store.Put(context.Background(), "WHAT", []byte("zonk")); err != nil { // shouting because that's what flatfs mandates.
+	if err := store.Put(context.Background(), "some key", []byte("zonk")); err != nil {
 		return err
 	}
 
-	if err := store.Put(context.Background(), "QWEASDZXCPOILKJMNB", []byte("hork")); err != nil {
+	if err := store.Put(context.Background(), "another key", []byte("hork")); err != nil {
 		return err
 	}
 
