@@ -3,10 +3,15 @@ package basic
 import (
 	"context"
 	"encoding/base32"
+	"fmt"
 
+	"github.com/ipfs/go-cid"
 	flatfs "github.com/ipfs/go-ds-flatfs"
 	"github.com/urfave/cli/v2"
 
+	"github.com/ipld/go-ipld-prime/linking"
+	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
+	"github.com/ipld/go-ipld-prime/node/basicnode"
 	"github.com/ipld/go-ipld-prime/storage/dsadapter"
 )
 
@@ -18,6 +23,8 @@ var Cmd_Put = &cli.Command{
 }
 
 func Action_Put(args *cli.Context) error {
+	// Create the datastore backend.
+	//  (This uses a bunch of legacy code and will probably be replaced someday.)
 	shardFn, err := flatfs.ParseShardFunc("/repo/flatfs/shard/v1/next-to-last/3")
 	if err != nil {
 		return err
@@ -27,21 +34,38 @@ func Action_Put(args *cli.Context) error {
 		return err
 	}
 	defer ds.Close()
-
-	store := dsadapter.Adapter{
+	// Wrap it in the modern storage APIs so it's ready to use with go-ipld-prime.
+	//  Use an escaping function with it, because the flatfs datastore doesn't allow arbitrary keys.
+	store := &dsadapter.Adapter{
 		Wrapped: ds,
 		EscapingFunc: func(raw string) string {
 			return base32.StdEncoding.EncodeToString([]byte(raw))
 		},
 	}
 
-	if err := store.Put(context.Background(), "some key", []byte("zonk")); err != nil {
-		return err
-	}
+	// Set up a LinkSystem.
+	//  A LinkSystem is the controller that puts together all the components needed to do an end-to-end job like "take this data, hash it, and store it keyed by CID".
+	//  Using the cidlink.DefaultLinkSystem means it'll use the global multicodec registry and global multihash registry.
+	//  Then we just configure it to use our storage, created above.
+	lsys := cidlink.DefaultLinkSystem()
+	lsys.SetWriteStorage(store)
 
-	if err := store.Put(context.Background(), "another key", []byte("hork")); err != nil {
+	// Demo write.
+	//  FIXME: still just fixed placeholder content.  More needed here.
+	lnk, err := lsys.Store(
+		linking.LinkContext{Ctx: context.Background()},
+		cidlink.LinkPrototype{cid.Prefix{
+			Version:  1,    // Usually '1'.
+			Codec:    0x71, // dag-cbor as per multicodec table.
+			MhType:   0x15, // please switch this to 0x20 as soon as go-multihash#149 is merged.
+			MhLength: 48,
+		}},
+		basicnode.NewString("hello there"),
+	)
+	if err != nil {
 		return err
 	}
+	fmt.Fprintf(args.App.Writer, "%s\n", lnk)
 
 	return nil
 }
