@@ -39,7 +39,7 @@ func Action_Put(args *cli.Context) error {
 	store := &dsadapter.Adapter{
 		Wrapped: ds,
 		EscapingFunc: func(raw string) string {
-			return base32.StdEncoding.EncodeToString([]byte(raw))
+			return base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString([]byte(raw))
 		},
 	}
 
