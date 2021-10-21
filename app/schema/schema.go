@@ -137,8 +137,7 @@ func Action_GoCodegen(args *cli.Context) error {
 		return err
 	}
 	a := gengo.AdjunctCfg{}
-	gengo.Generate(fmt.Sprintf("%s", outputDir), pkgName, ts, &a)
+	gengo.Generate(outputDir, pkgName, ts, &a)
 
-	// TODO: Add support for generating bindnode types once they're exported
 	return nil
 }
