@@ -43,9 +43,14 @@ var Cmd_Schema = &cli.Command{
 		Name:  "compile",
 		Usage: "Compile a schema DMT document, exiting nonzero and reporting errors if anything is logically invalid.",
 	}, {
-		Name:  "go-codegen",
-		Usage: "",
+		Name:  "codegen",
+		Usage: "Generate code for working with IPLD schemas",
 		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name : "generator",
+				Usage: "Generator to be used for creating the code. Currently supports (go-gengo)",
+				Required: true,
+			},
 			&cli.PathFlag{
 				Name:  "output",
 				Usage: "Directory where the codegen files should be output to",
@@ -130,8 +135,13 @@ func Action_GoCodegen(args *cli.Context) error {
 		return err
 	}
 
+	generator := args.Path("generator")
 	outputDir := args.Path("output")
 	pkgName := args.String("package")
+
+	if generator != "go-gengo" {
+		return fmt.Errorf("unsupported generator: %s", generator)
+	}
 
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
 		return err
