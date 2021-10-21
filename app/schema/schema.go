@@ -2,12 +2,16 @@ package schema
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/urfave/cli/v2"
 
 	"github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/node/bindnode"
+	"github.com/ipld/go-ipld-prime/schema"
 	schemadmt "github.com/ipld/go-ipld-prime/schema/dmt"
+	schemadsl "github.com/ipld/go-ipld-prime/schema/dsl"
+	gengo "github.com/ipld/go-ipld-prime/schema/gen/go"
 
 	"github.com/ipld/go-ipldtool/app/shared"
 )
@@ -38,6 +42,27 @@ var Cmd_Schema = &cli.Command{
 	}, {
 		Name:  "compile",
 		Usage: "Compile a schema DMT document, exiting nonzero and reporting errors if anything is logically invalid.",
+	}, {
+		Name:  "codegen",
+		Usage: "Generate code for working with IPLD schemas",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name : "generator",
+				Usage: "Generator to be used for creating the code. Currently supports (go-gengo)",
+				Required: true,
+			},
+			&cli.PathFlag{
+				Name:  "output",
+				Usage: "Directory where the codegen files should be output to",
+				Value: "ipldsch",
+			},
+			&cli.StringFlag{
+				Name:  "package",
+				Usage: "Package name for generated files",
+				Value: "ipldsch",
+			},
+		},
+		Action: Action_GoCodegen,
 	}},
 	// Someday: it may be neat to have a handful of well-known transforms, like: strip all rename directives, or make all representations default, etc.
 }
@@ -92,4 +117,37 @@ func Action_SchemaParse(args *cli.Context) error {
 	// Print out the DMT.
 	// TODO: or do something else if the "save" flag is set.
 	return ipld.EncodeStreaming(args.App.Writer, dmtn, encoder)
+}
+
+func Action_GoCodegen(args *cli.Context) error {
+	if args.NArg() != 1 {
+		return fmt.Errorf("invalid number of arguments")
+	}
+
+	s, err := schemadsl.ParseFile(args.Args().First())
+	if err != nil {
+		return err
+	}
+
+	var ts schema.TypeSystem
+	ts.Init()
+	if err := schemadmt.Compile(&ts, s); err != nil {
+		return err
+	}
+
+	generator := args.Path("generator")
+	outputDir := args.Path("output")
+	pkgName := args.String("package")
+
+	if generator != "go-gengo" {
+		return fmt.Errorf("unsupported generator: %s", generator)
+	}
+
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+		return err
+	}
+	a := gengo.AdjunctCfg{}
+	gengo.Generate(outputDir, pkgName, ts, &a)
+
+	return nil
 }
