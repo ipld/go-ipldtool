@@ -1,9 +1,12 @@
 package schema
 
 import (
+	"bytes"
 	"fmt"
+	"go/format"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"github.com/urfave/cli/v2"
 
@@ -165,7 +168,7 @@ func generateGoBindnode(schemaFilePath, outputDir, pkgName string, ts *schema.Ty
 		return err
 	}
 
-	// generate types.go
+	// generate the basic Go types in types.go
 	f, err := os.Create(filepath.Join(outputDir, "types.go"))
 	if err != nil {
 		return err
@@ -183,43 +186,70 @@ func generateGoBindnode(schemaFilePath, outputDir, pkgName string, ts *schema.Ty
 		return err
 	}
 
+	// generate schema prototypes in schema.go
 	relPath, err := filepath.Rel(outputDir, schemaFilePath)
 	if err != nil {
 		// TODO: better err
 		return err
 	}
 
-	f, err = os.Create(filepath.Join(outputDir, "schema.go"))
-	if err != nil {
-		return err
+	type tmplfillIn struct {
+		PkgName         string
+		SchemaEmbedPath string
+		TypeNames       []string
 	}
 
-	if _, err := fmt.Fprintf(f, `
-package %s
+	tmpl, err := template.New("schematypegen").Parse(`
+package {{.PkgName}}
 
 import (
 	_ "embed"
 	
 	"github.com/ipld/go-ipld-prime"
+	"github.com/ipld/go-ipld-prime/node/bindnode"
 	"github.com/ipld/go-ipld-prime/schema"
 )
 
-//go:embed %s
+//go:embed {{.SchemaEmbedPath}}
 var embeddedSchema []byte
 
-var Types *schema.TypeSystem
+var Types schemaSlab
+
+type schemaSlab struct {
+{{range .TypeNames}}
+{{.}}	schema.TypedPrototype{{end}}
+}
 
 func init() {
 	ts, err := ipld.LoadSchemaBytes(embeddedSchema)
 	if err != nil {
 		panic(err)
 	}
-	Types = ts
-}
+{{range .TypeNames}}
 
-`, pkgName, relPath); err != nil {
+	Types.{{.}} = bindnode.Prototype(
+		(*{{.}})(nil),
+		ts.TypeByName("{{.}}"),
+	){{end}}
+}
+`)
+	if err != nil {
 		return err
 	}
 
-	return f.Close()
+	buf := new(bytes.Buffer)
+	if err := tmpl.Execute(buf, &tmplfillIn{
+		PkgName:         pkgName,
+		SchemaEmbedPath: relPath,
+		TypeNames:       ts.Names(),
+	}); err != nil {
+		return err
+	}
+
+	formattedSrc, err := format.Source(buf.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(filepath.Join(outputDir, "schema.go"), formattedSrc, 0666)
 }
