@@ -238,11 +238,13 @@ func init() {
 	}
 
 	buf := new(bytes.Buffer)
-	if err := tmpl.Execute(buf, &tmplfillIn{
+	fill := &tmplfillIn{
 		PkgName:         pkgName,
 		SchemaEmbedPath: relPath,
-		TypeNames:       ts.Names(),
-	}); err != nil {
+		TypeNames:       ts.Names()[5:len(ts.Names())], // Skip basic types
+	}
+
+	if err := tmpl.Execute(buf, fill); err != nil {
 		return err
 	}
 
