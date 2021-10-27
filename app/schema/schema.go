@@ -166,7 +166,7 @@ func generateGoBindnode(schemaFilePath, outputDir, pkgName string, ts *schema.Ty
 	}
 
 	// generate types.go
-	f, err := os.Create(fmt.Sprintf("%s/types.go", outputDir))
+	f, err := os.Create(filepath.Join(outputDir, "types.go"))
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func generateGoBindnode(schemaFilePath, outputDir, pkgName string, ts *schema.Ty
 		return err
 	}
 
-	f, err = os.Create(fmt.Sprintf("%s/schema.go", outputDir))
+	f, err = os.Create(filepath.Join(outputDir, "schema.go"))
 	if err != nil {
 		return err
 	}
