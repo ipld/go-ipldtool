@@ -48,8 +48,7 @@ func Action_Put(args *cli.Context) error {
 	//  Using the cidlink.DefaultLinkSystem means it'll use the global multicodec registry and global multihash registry.
 	//  Then we just configure it to use our storage, created above.
 	lsys := cidlink.DefaultLinkSystem()
-	//lsys.SetWriteStorage(store)
-	_ = store
+	lsys.SetWriteStorage(store)
 
 	// Demo write.
 	//  FIXME: still just fixed placeholder content.  More needed here.
