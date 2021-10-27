@@ -38,6 +38,8 @@ github.com/ipld/go-ipld-prime v0.12.4-0.20211027142343-c0e475c07685 h1:enMIT82oa
 github.com/ipld/go-ipld-prime v0.12.4-0.20211027142343-c0e475c07685/go.mod h1:JUI6cS52J83Tz5li0Zl6M2tDX4r5x68Y77K1fbXHFYo=
 github.com/ipld/go-ipld-prime/storage/dsadapter v0.0.0-20211010135705-522500cfab8b h1:kq+0Vl9kJiRXJxF1MzGFt7yHvRSFbe+BpCEUiIUIg+c=
 github.com/ipld/go-ipld-prime/storage/dsadapter v0.0.0-20211010135705-522500cfab8b/go.mod h1:A/hkJiqCHIEICMEjOU4rOWMpapqj6i7TY8RpwqxJ3xY=
+github.com/ipld/go-ipld-prime/storage/dsadapter v0.0.0-20211027142343-c0e475c07685 h1:qrt93FAA65GrmuOietJtB+6l9jjOxoEnu/TwEo2Ar00=
+github.com/ipld/go-ipld-prime/storage/dsadapter v0.0.0-20211027142343-c0e475c07685/go.mod h1:A/hkJiqCHIEICMEjOU4rOWMpapqj6i7TY8RpwqxJ3xY=
 github.com/jbenet/go-cienv v0.1.0/go.mod h1:TqNnHUmJgXau0nCzC7kXWeotg3J9W34CUv5Djy1+FlA=
 github.com/jbenet/goprocess v0.0.0-20160826012719-b497e2f366b8/go.mod h1:Ly/wlsjFq/qrU3Rar62tu1gASgGw6chQbSh/XgIIXCY=
 github.com/jbenet/goprocess v0.1.4 h1:DRGOFReOMqqDNXwW70QkacFW0YN9QnwLV0Vqk+3oU0o=

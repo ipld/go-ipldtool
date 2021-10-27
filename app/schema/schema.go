@@ -49,7 +49,7 @@ var Cmd_Schema = &cli.Command{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "generator",
-				Usage:    "Generator to be used for creating the code. Currently supports (go-gengo)",
+				Usage:    "Generator to be used for creating the code. Currently supports (go-gengo, go-bindnode)",
 				Required: true,
 			},
 			&cli.PathFlag{
@@ -125,7 +125,8 @@ func Action_GoCodegen(args *cli.Context) error {
 		return fmt.Errorf("invalid number of arguments")
 	}
 
-	s, err := schemadsl.ParseFile(args.Args().First())
+	schemaFilePath := args.Args().First()
+	s, err := schemadsl.ParseFile(schemaFilePath)
 	if err != nil {
 		return err
 	}
@@ -140,15 +141,46 @@ func Action_GoCodegen(args *cli.Context) error {
 	outputDir := args.Path("output")
 	pkgName := args.String("package")
 
-	if generator != "go-gengo" {
+	switch generator {
+	case "go-gengo":
+		if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+			return err
+		}
+		a := gengo.AdjunctCfg{}
+		gengo.Generate(outputDir, pkgName, ts, &a)
+	case "go-bindnode":
+		if err := generateGoBindnode(schemaFilePath, outputDir, pkgName, &ts); err != nil {
+			return err
+		}
+	default:
 		return fmt.Errorf("unsupported generator: %s", generator)
 	}
 
+	return nil
+}
+
+func generateGoBindnode(schemaFilePath, outputDir, pkgName string, ts *schema.TypeSystem) error {
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
 		return err
 	}
-	a := gengo.AdjunctCfg{}
-	gengo.Generate(outputDir, pkgName, ts, &a)
+
+	// generate types.go
+	f, err := os.Create(fmt.Sprintf("%s/types.go", outputDir))
+	if err != nil {
+		return err
+	}
+
+	if _, err := fmt.Fprintf(f, "package %s\n\n", pkgName); err != nil {
+		return err
+	}
+
+	if err := bindnode.ProduceGoTypes(f, ts); err != nil {
+		return err
+	}
+
+	if err := f.Close(); err != nil {
+		return err
+	}
 
 	return nil
 }
