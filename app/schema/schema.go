@@ -205,14 +205,14 @@ import (
 )
 
 //go:embed %s
-var embeddedSchema string
+var embeddedSchema []byte
 
 var Types *schema.TypeSystem
 
 func init() {
-	ts, err := ipld.LoadSchemaBytes([]byte(embeddedSchema))
+	ts, err := ipld.LoadSchemaBytes(embeddedSchema)
 	if err != nil {
-		panic("could not load schema")
+		panic(err)
 	}
 	Types = ts
 }
