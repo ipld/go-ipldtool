@@ -3,6 +3,7 @@ package schema
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/urfave/cli/v2"
 
@@ -182,5 +183,43 @@ func generateGoBindnode(schemaFilePath, outputDir, pkgName string, ts *schema.Ty
 		return err
 	}
 
-	return nil
+	relPath, err := filepath.Rel(outputDir, schemaFilePath)
+	if err != nil {
+		// TODO: better err
+		return err
+	}
+
+	f, err = os.Create(fmt.Sprintf("%s/schema.go", outputDir))
+	if err != nil {
+		return err
+	}
+
+	if _, err := fmt.Fprintf(f, `
+package %s
+
+import (
+	_ "embed"
+	
+	"github.com/ipld/go-ipld-prime"
+	"github.com/ipld/go-ipld-prime/schema"
+)
+
+//go:embed %s
+var embeddedSchema string
+
+var Types *schema.TypeSystem
+
+func init() {
+	ts, err := ipld.LoadSchemaBytes([]byte(embeddedSchema))
+	if err != nil {
+		panic("could not load schema")
+	}
+	Types = ts
+}
+
+`, pkgName, relPath); err != nil {
+		return err
+	}
+
+	return f.Close()
 }
