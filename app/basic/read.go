@@ -88,7 +88,7 @@ var Cmd_Read = &cli.Command{
 		case 1:
 			sourceArg = args.Args().Get(0)
 		default:
-			fmt.Errorf("read command needs one or two positional arguments")
+			return fmt.Errorf("read command needs one or two positional arguments")
 		}
 
 		// Let's get some data!
