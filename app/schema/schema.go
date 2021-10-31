@@ -47,8 +47,8 @@ var Cmd_Schema = &cli.Command{
 		Usage: "Generate code for working with IPLD schemas",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name : "generator",
-				Usage: "Generator to be used for creating the code. Currently supports (go-gengo)",
+				Name:     "generator",
+				Usage:    "Generator to be used for creating the code. Currently supports (go-gengo)",
 				Required: true,
 			},
 			&cli.PathFlag{
