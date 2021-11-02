@@ -20,6 +20,7 @@ USAGE:
 COMMANDS:
    parse    Parse a schema DSL document, and produce the DMT form, emitted in JSON by default.
    compile  Compile a schema DMT document, exiting nonzero and reporting errors if anything is logically invalid.
+   codegen  Generate code for working with IPLD schemas
    help, h  Shows a list of commands or help for one command
 
 OPTIONS:
@@ -70,9 +71,7 @@ This prints out the parsed DMT form of the schema:
 					}
 				},
 				"representation": {
-					"map": {
-						"fields": {}
-					}
+					"map": {}
 				}
 			}
 		}
