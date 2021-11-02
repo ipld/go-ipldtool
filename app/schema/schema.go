@@ -82,7 +82,7 @@ func Action_SchemaParse(args *cli.Context) error {
 	case 1:
 		sourceArg = args.Args().Get(0)
 	default:
-		return fmt.Errorf("schema parse command needs exactly one positional argument")
+		return shared.ErrInvalidArgs("schema parse command needs exactly one positional argument", nil)
 	}
 
 	// Let's get some data!
