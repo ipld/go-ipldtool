@@ -36,17 +36,28 @@ const MagicWorkspaceDirname = ".ipld"
 //  - ipldtool-error-io -- if there's an io error during the search (permission denied, etc).
 //
 func Find() (string, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", ipldtoolerr.Newf("ipldtool-error-no-cwd", "%s", err)
+	}
+	return FindFrom(cwd)
+}
+
+// FindFrom is the same as Find, but when searching, starts at the directory of your choosing.
+//
+// Errors:
+//
+//  - ipldtool-workspace-not-found -- if we tried everything and can't find a workspace.
+//  - ipldtool-error-io -- if there's an io error during the search (permission denied, etc).
+//
+func FindFrom(startAt string) (string, error) {
 	// If the override var is present: that's it.
 	if override := os.Getenv("IPLDTOOL_WORKSPACE"); override != "" {
 		return override, nil
 	}
 
-	// Search up, starting from cwd.
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "", ipldtoolerr.Newf("ipldtool-error-no-cwd", "%s", err)
-	}
-	searchAt := cwd
+	// Search up, starting from the directory given.
+	searchAt := startAt
 	for {
 		// Probe fairly blindly.
 		//  (We're mostly expecting a directory, but don't actually check that here.)
@@ -90,5 +101,5 @@ func Find() (string, error) {
 	}
 
 	// All options exhausted.  Report a not found.
-	return "", ipldtoolerr.Newf("ipldtool-workspace-not-found", "no workspace marker (an '.ipld' dir) found while searching up from %q", cwd)
+	return "", ipldtoolerr.Newf("ipldtool-workspace-not-found", "no workspace marker (an '.ipld' dir) found while searching up from %q", startAt)
 }
