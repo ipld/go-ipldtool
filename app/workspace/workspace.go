@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	rerr "github.com/ipld/go-ipldtool/errors"
+	ipldtoolerr "github.com/ipld/go-ipldtool/errors"
 )
 
 const MagicWorkspaceDirname = ".ipld"
@@ -44,7 +44,7 @@ func Find() (string, error) {
 	// Search up, starting from cwd.
 	cwd, err := os.Getwd()
 	if err != nil {
-		return "", rerr.Newf("ipldtool-error-no-cwd", "%s", err)
+		return "", ipldtoolerr.Newf("ipldtool-error-no-cwd", "%s", err)
 	}
 	searchAt := cwd
 	for {
@@ -70,7 +70,7 @@ func Find() (string, error) {
 		}
 		// You're still here?  That means there's an error, but of some unpleasant kind.
 		//  Whatever this error is, our search has blind spots: error out.
-		return "", rerr.Newf("ipldtool-error-io", "error during search for workspace: %s", err)
+		return "", ipldtoolerr.Newf("ipldtool-error-io", "error during search for workspace: %s", err)
 	}
 
 	// Still nada?  Check the homedir.  Unless we were told not to, of course.
@@ -78,17 +78,17 @@ func Find() (string, error) {
 	if nohome := os.Getenv("IPLDTOOL_NOHOME"); nohome == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			return "", rerr.Newf("ipldtool-error-io", "error during search for workspace: can't find homedir: %s", err)
+			return "", ipldtoolerr.Newf("ipldtool-error-io", "error during search for workspace: can't find homedir: %s", err)
 		}
 		if err := os.Mkdir(filepath.Join(home, MagicWorkspaceDirname), 0755); err != nil {
 			if errors.Is(err, fs.ErrExist) {
 				return home, nil
 			}
-			return "", rerr.Newf("ipldtool-error-io", "could not make workspace dir in homedir: %s", err)
+			return "", ipldtoolerr.Newf("ipldtool-error-io", "could not make workspace dir in homedir: %s", err)
 		}
 		return home, nil
 	}
 
 	// All options exhausted.  Report a not found.
-	return "", rerr.Newf("ipldtool-workspace-not-found", "no workspace marker (an '.ipld' dir) found while searching up from %q", cwd)
+	return "", ipldtoolerr.Newf("ipldtool-workspace-not-found", "no workspace marker (an '.ipld' dir) found while searching up from %q", cwd)
 }

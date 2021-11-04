@@ -14,6 +14,7 @@ import (
 	gengo "github.com/ipld/go-ipld-prime/schema/gen/go"
 
 	"github.com/ipld/go-ipldtool/app/shared"
+	ipldtoolerr "github.com/ipld/go-ipldtool/errors"
 )
 
 var Cmd_Schema = &cli.Command{
@@ -82,7 +83,7 @@ func Action_SchemaParse(args *cli.Context) error {
 	case 1:
 		sourceArg = args.Args().Get(0)
 	default:
-		return shared.ErrInvalidArgs("schema parse command needs exactly one positional argument", nil)
+		return ipldtoolerr.Newf(ipldtoolerr.ErrCode_InvalidArgs, "'schema parse' command needs exactly one positional argument")
 	}
 
 	// Let's get some data!

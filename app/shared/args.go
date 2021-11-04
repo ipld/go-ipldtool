@@ -2,7 +2,6 @@ package shared
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/ipld/go-ipld-prime/codec/json"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/ipld/go-ipld-prime/printer"
+	ipldtoolerr "github.com/ipld/go-ipldtool/errors"
 )
 
 // StringIsPathish returns true if the string explicitly looks like a filesystem path
@@ -38,7 +38,7 @@ func ParseDataSourceArg(inputArg string) (reader *bufio.Reader, link datamodel.L
 	case StringIsPathish(inputArg): // looks like a filename
 		f, err := os.Open(inputArg)
 		if err != nil {
-			return nil, nil, ErrInvalidArgs("arg looks like a filename but cannot be opened", err)
+			return nil, nil, ipldtoolerr.Newf(ipldtoolerr.ErrCode_InvalidArgs, "arg looks like a filename but cannot be opened: %s", err)
 		}
 		reader = bufio.NewReader(f)
 	default: // hope this is a CID
@@ -84,10 +84,10 @@ func ParseEncoderArg(arg string, defalt string, argName string) (codec.Encoder, 
 			case "dag-cbor":
 				return dagcbor.Encode, nil
 			default:
-				return nil, ErrInvalidArgs(fmt.Sprintf("%s argument not recognized: %q is not a supported codec name", argName, arg[6:]), nil)
+				return nil, ipldtoolerr.Newf(ipldtoolerr.ErrCode_InvalidArgs, "%s argument not recognized: %q is not a supported codec name", argName, arg[6:])
 			}
 		default:
-			return nil, ErrInvalidArgs(fmt.Sprintf("%s argument format not recognized", argName), nil)
+			return nil, ipldtoolerr.Newf(ipldtoolerr.ErrCode_InvalidArgs, "%s argument format not recognized", argName)
 		}
 	}
 }

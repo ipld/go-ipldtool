@@ -19,7 +19,7 @@ import (
 func DSLParse(inputName string, input io.Reader) (*schemadmt.Schema, error) {
 	dmt, err := schemadsl.Parse(inputName, input)
 	if err != nil {
-		return nil, &errors.Error{
+		return nil, &ipldtoolerr.Error{
 			ErrCode_SchemaDSLParseFailed,
 			err.Error(),
 			nil,
@@ -39,7 +39,7 @@ func SchemaCompile(dmt *schemadmt.Schema) (*schema.TypeSystem, error) {
 	var ts schema.TypeSystem
 	ts.Init()
 	if err := schemadmt.Compile(&ts, dmt); err != nil {
-		return nil, &errors.Error{
+		return nil, &ipldtoolerr.Error{
 			ErrCode_SchemaCompileFailed,
 			err.Error(),
 			nil,

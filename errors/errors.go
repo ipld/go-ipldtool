@@ -1,6 +1,23 @@
-package errors
+package ipldtoolerr
+
+// This package name is verbose,
+// but using the package name "errors" would also be inconvenient
+// because it's not uncommon to also need to import stdlib's "errors" package.
 
 import "fmt"
+
+// Some frequently used error constants are gathered here.
+// This is not an exhaustive list;
+// error code constants may also be defined locally and on-the-fly.
+//
+// (REVIEW: I'm not sure this actually provides value.
+// One ends up replicating the constants in the docs anyway;
+// so naming a constant in the code just gives you a *different* thing to copy around:
+// that feels like boilerplate rather than value-added.
+// The only value add is having something one can try to autocomplete with.)
+const (
+	ErrCode_InvalidArgs = "ipldtool-error-invalid-args"
+)
 
 // New constructs a new error value,
 // taking an error code parameter and a freetext string as message.
