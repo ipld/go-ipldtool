@@ -13,7 +13,7 @@ import (
 var Cmd_Workspace = &cli.Command{
 	Name:     "workspace",
 	Category: "basic",
-	Usage:    "Configure a workspace for the ipldtool -- you'll need this for any of the stateful commands.",
+	Usage:    "Create, configure, or interogate a workspace for the ipldtool.  (You'll need a workspace for any of the stateful commands.)",
 	Subcommands: []*cli.Command{{
 		Name:  "new",
 		Usage: "Creates the local filesystem markers for a new workspace.",
