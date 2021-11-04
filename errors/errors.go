@@ -72,7 +72,12 @@ type Error struct {
 	TheCause   error             `json:"cause,omitempty"`
 }
 
-func (e *Error) Code() string               { return e.TheCode }
+func (e *Error) Code() string {
+	if e == nil {
+		return ""
+	}
+	return e.TheCode
+}
 func (e *Error) Message() string            { return e.TheMessage }
 func (e *Error) Details() map[string]string { return e.TheDetails }
 func (e *Error) Cause() error               { return e.TheCause }

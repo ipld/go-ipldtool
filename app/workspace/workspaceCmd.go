@@ -75,12 +75,13 @@ func Action_WorkspaceFind(args *cli.Context) error {
 	switch args.Args().Len() {
 	case 0:
 		wspath, err := Find()
-		if err != nil {
-			if err.(*ipldtoolerr.Error).Code() == "ipldtool-workspace-not-found" {
-				// Fine.  Silence is our answer, then, in this command.
-				return nil
-			}
-			return err
+		switch err.(*ipldtoolerr.Error).Code() {
+		case "":
+			return nil
+		case "ipldtool-workspace-not-found":
+			return nil // Fine.  Silence is our answer, then, in this command.  No problem.
+		default:
+			return err // (Wish: the error analysis tool could subtract the cases above from codes still possible in `err` here.)
 		}
 		fmt.Fprintf(args.App.Writer, "%s\n", wspath)
 		return nil
