@@ -2,25 +2,36 @@ package errors
 
 import "fmt"
 
-/*
-Generalized constructor functions don't really jive well with the analysis tool yet (at least as far as I can figure out).
-Might be worth trying to make something like these later.
-For now: to be friendly to the analyser, we'll make a constructor function for each specific code.
-(That's not a bad thing anyway: lets us get more specific about args it should have!)
-
-
-func New(code string, msg string) *Error {
+// New constructs a new error value,
+// taking an error code parameter and a freetext string as message.
+//
+// See Newf for a little more flexibility.
+//
+// Errors:
+//
+//    - param: errcode -- this constant will be the error's (analyzable!) code.
+func New(errcode string, msg string) *Error {
 	return &Error{
-		code,
+		errcode,
 		msg,
 		nil,
 		nil,
 	}
 }
 
-func Newf(code string, format string, args ...interface{}) *Error {
+// Newf constructs a new error value,
+// taking an error code parameter,
+// and a format string and additional parameters in the style of fmt.Sprintf.
+//
+// If the last argument is an error,
+// it will also be marked as the cause in the new error returned.
+//
+// Errors:
+//
+//    - param: errcode -- this constant will be the error's (analyzable!) code.
+func Newf(errcode string, format string, args ...interface{}) *Error {
 	return &Error{
-		code,
+		errcode,
 		fmt.Sprintf(format, args...),
 		nil,
 		func() error {
@@ -35,7 +46,6 @@ func Newf(code string, format string, args ...interface{}) *Error {
 		}(),
 	}
 }
-*/
 
 type Error struct {
 	TheCode    string            `json:"code"`
