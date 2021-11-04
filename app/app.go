@@ -9,6 +9,7 @@ import (
 
 	"github.com/ipld/go-ipldtool/app/basic"
 	"github.com/ipld/go-ipldtool/app/schema"
+	"github.com/ipld/go-ipldtool/app/workspace"
 )
 
 func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) (int, error) {
@@ -20,6 +21,7 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) (int, error)
 		Commands: []*cli.Command{
 			basic.Cmd_Put,
 			basic.Cmd_Read,
+			workspace.Cmd_Workspace,
 			schema.Cmd_Schema,
 		},
 	}

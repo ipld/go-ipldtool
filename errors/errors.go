@@ -15,6 +15,7 @@ import "fmt"
 // so naming a constant in the code just gives you a *different* thing to copy around:
 // that feels like boilerplate rather than value-added.
 // The only value add is having something one can try to autocomplete with.)
+// (... okay, and having the constants for equality checks in handling.  That's useful.)
 const (
 	ErrCode_InvalidArgs = "ipldtool-error-invalid-args"
 )
