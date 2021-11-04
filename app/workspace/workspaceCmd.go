@@ -65,7 +65,9 @@ func Action_WorkspaceNew(args *cli.Context) error {
 // Errors:
 //
 //   - ipldtool-error-invalid-args -- for incomprehensible or invalid arguments.
+//   - ipldtool-error-no-cwd -- if the cwd can't be found!
 //   - ipldtool-error-io -- if there's an io error (permission denied, readonly disk, etc).
+//   - ipldtool-workspace-not-found -- FIXME: this isn't actually possible.
 //
 // It is not an error if the workspace already exists.
 func Action_WorkspaceFind(args *cli.Context) error {
