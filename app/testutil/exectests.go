@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"testing"
 
 	"github.com/frankban/quicktest"
@@ -21,6 +22,11 @@ func TestExecSpec(t *testing.T, specFile string) {
 	os.MkdirAll("/tmp/ipld-test/bin/", 0755)
 	if err := exec.Command("go", "build", "-o", "/tmp/ipld-test/bin/ipld", "../../cmd/ipld/ipld.go").Run(); err != nil {
 		t.Fatalf("failed to build the command: %s", err)
+	}
+	if runtime.GOOS == "windows" {
+		if err := exec.Command("ls", "/tmp/ipld-test/bin/").Run(); err != nil {
+			t.Fatalf("failed to ls: %s", err)
+		}
 	}
 
 	// Read the spec file.
