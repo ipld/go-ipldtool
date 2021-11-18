@@ -54,7 +54,7 @@ func Action_Put(args *cli.Context) error {
 	//  FIXME: still just fixed placeholder content.  More needed here.
 	lnk, err := lsys.Store(
 		linking.LinkContext{Ctx: context.Background()},
-		cidlink.LinkPrototype{cid.Prefix{
+		cidlink.LinkPrototype{Prefix: cid.Prefix{
 			Version:  1,    // Usually '1'.
 			Codec:    0x71, // dag-cbor as per multicodec table.
 			MhType:   0x15, // please switch this to 0x20 as soon as go-multihash#149 is merged.
