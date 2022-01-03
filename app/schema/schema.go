@@ -178,11 +178,6 @@ func generateGoBindnode(schemaFilePath, outputDir, pkgName string, ts *schema.Ty
 		return err
 	}
 
-	delete(ts.GetTypes(), "Link")
-	ts.GetTypes()["Bogus"] = schema.SpawnBool("Bogus")
-	copy(ts.Names()[5:], ts.Names()[6:])
-	ts.Names()[len(ts.Names())-1] = "Bogus"
-
 	if err := bindnode.ProduceGoTypes(f, ts); err != nil {
 		return err
 	}
@@ -246,7 +241,7 @@ func init() {
 	fill := &tmplfillIn{
 		PkgName:         pkgName,
 		SchemaEmbedPath: relPath,
-		TypeNames:       ts.Names()[5 : len(ts.Names())-1], // Skip basic types and the bogus type
+		TypeNames:       ts.Names()[5:len(ts.Names())], // Skip basic types
 	}
 
 	if err := tmpl.Execute(buf, fill); err != nil {
