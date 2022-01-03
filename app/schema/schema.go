@@ -214,7 +214,7 @@ import (
 //go:embed {{.SchemaEmbedPath}}
 var embeddedSchema []byte
 
-var Types schemaSlab
+var Prototypes schemaSlab
 
 type schemaSlab struct {
 {{range .TypeNames}}
@@ -228,7 +228,7 @@ func init() {
 	}
 {{range .TypeNames}}
 
-	Types.{{.}} = bindnode.Prototype(
+	Prototypes.{{.}} = bindnode.Prototype(
 		(*{{.}})(nil),
 		ts.TypeByName("{{.}}"),
 	){{end}}
