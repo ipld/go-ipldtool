@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"text/template"
 
@@ -187,9 +189,8 @@ func generateGoBindnode(schemaFilePath, outputDir, pkgName string, ts *schema.Ty
 	}
 
 	// generate schema prototypes in schema.go
-	relPath, err := filepath.Rel(outputDir, schemaFilePath)
-	if err != nil {
-		// TODO: better err
+	outSchemaFile := path.Base(schemaFilePath)
+	if err := copyFile(path.Join(outputDir, outSchemaFile), schemaFilePath); err != nil {
 		return err
 	}
 
@@ -240,7 +241,7 @@ func init() {
 	buf := new(bytes.Buffer)
 	fill := &tmplfillIn{
 		PkgName:         pkgName,
-		SchemaEmbedPath: relPath,
+		SchemaEmbedPath: outSchemaFile,
 		TypeNames:       ts.Names()[5:len(ts.Names())], // Skip basic types
 	}
 
@@ -254,4 +255,16 @@ func init() {
 	}
 
 	return os.WriteFile(filepath.Join(outputDir, "schema.go"), formattedSrc, 0666)
+}
+
+func copyFile(targetFile, sourceFile string) error {
+	input, err := ioutil.ReadFile(sourceFile)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(targetFile, input, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }
