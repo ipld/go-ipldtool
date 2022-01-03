@@ -242,7 +242,7 @@ func init() {
 	fill := &tmplfillIn{
 		PkgName:         pkgName,
 		SchemaEmbedPath: outSchemaFile,
-		TypeNames:       ts.Names()[5:len(ts.Names())], // Skip basic types
+		TypeNames:       ts.Names()[6:len(ts.Names())], // Skip basic types
 	}
 
 	if err := tmpl.Execute(buf, fill); err != nil {
