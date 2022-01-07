@@ -1,8 +1,14 @@
 package schema
 
 import (
+	"bytes"
 	"fmt"
+	"go/format"
+	"io/ioutil"
 	"os"
+	"path"
+	"path/filepath"
+	"text/template"
 
 	"github.com/urfave/cli/v2"
 
@@ -49,7 +55,7 @@ var Cmd_Schema = &cli.Command{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "generator",
-				Usage:    "Generator to be used for creating the code. Currently supports (go-gengo)",
+				Usage:    "Generator to be used for creating the code. Currently supports (go-gengo, go-bindnode)",
 				Required: true,
 			},
 			&cli.PathFlag{
@@ -125,7 +131,8 @@ func Action_GoCodegen(args *cli.Context) error {
 		return fmt.Errorf("invalid number of arguments")
 	}
 
-	s, err := schemadsl.ParseFile(args.Args().First())
+	schemaFilePath := args.Args().First()
+	s, err := schemadsl.ParseFile(schemaFilePath)
 	if err != nil {
 		return err
 	}
@@ -140,15 +147,124 @@ func Action_GoCodegen(args *cli.Context) error {
 	outputDir := args.Path("output")
 	pkgName := args.String("package")
 
-	if generator != "go-gengo" {
+	switch generator {
+	case "go-gengo":
+		if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+			return err
+		}
+		a := gengo.AdjunctCfg{}
+		gengo.Generate(outputDir, pkgName, ts, &a)
+	case "go-bindnode":
+		if err := generateGoBindnode(schemaFilePath, outputDir, pkgName, &ts); err != nil {
+			return err
+		}
+	default:
 		return fmt.Errorf("unsupported generator: %s", generator)
 	}
 
+	return nil
+}
+
+func generateGoBindnode(schemaFilePath, outputDir, pkgName string, ts *schema.TypeSystem) error {
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
 		return err
 	}
-	a := gengo.AdjunctCfg{}
-	gengo.Generate(outputDir, pkgName, ts, &a)
 
+	// generate the basic Go types in types.go
+	f, err := os.Create(filepath.Join(outputDir, "types.go"))
+	if err != nil {
+		return err
+	}
+
+	if _, err := fmt.Fprintf(f, "package %s\n\n", pkgName); err != nil {
+		return err
+	}
+
+	if err := bindnode.ProduceGoTypes(f, ts); err != nil {
+		return err
+	}
+
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	// generate schema prototypes in schema.go
+	outSchemaFile := path.Base(schemaFilePath)
+	if err := copyFile(path.Join(outputDir, outSchemaFile), schemaFilePath); err != nil {
+		return err
+	}
+
+	type tmplfillIn struct {
+		PkgName         string
+		SchemaEmbedPath string
+		TypeNames       []string
+	}
+
+	tmpl, err := template.New("schematypegen").Parse(`
+package {{.PkgName}}
+
+import (
+	_ "embed"
+	
+	"github.com/ipld/go-ipld-prime"
+	"github.com/ipld/go-ipld-prime/node/bindnode"
+	"github.com/ipld/go-ipld-prime/schema"
+)
+
+//go:embed {{.SchemaEmbedPath}}
+var embeddedSchema []byte
+
+var Prototypes schemaSlab
+
+type schemaSlab struct {
+{{range .TypeNames}}
+{{.}}	schema.TypedPrototype{{end}}
+}
+
+func init() {
+	ts, err := ipld.LoadSchemaBytes(embeddedSchema)
+	if err != nil {
+		panic(err)
+	}
+{{range .TypeNames}}
+
+	Prototypes.{{.}} = bindnode.Prototype(
+		(*{{.}})(nil),
+		ts.TypeByName("{{.}}"),
+	){{end}}
+}
+`)
+	if err != nil {
+		return err
+	}
+
+	buf := new(bytes.Buffer)
+	fill := &tmplfillIn{
+		PkgName:         pkgName,
+		SchemaEmbedPath: outSchemaFile,
+		TypeNames:       ts.Names()[6:len(ts.Names())], // Skip basic types
+	}
+
+	if err := tmpl.Execute(buf, fill); err != nil {
+		return err
+	}
+
+	formattedSrc, err := format.Source(buf.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(filepath.Join(outputDir, "schema.go"), formattedSrc, 0666)
+}
+
+func copyFile(targetFile, sourceFile string) error {
+	input, err := ioutil.ReadFile(sourceFile)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(targetFile, input, 0644)
+	if err != nil {
+		return err
+	}
 	return nil
 }
