@@ -1,7 +1,6 @@
 package workspace
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -74,7 +73,7 @@ func Action_WorkspaceFind(args *cli.Context) error {
 	// Parse positional args.
 	switch args.Args().Len() {
 	case 0:
-		wspath, err := Find()
+		_, err := Find()
 		switch err.(*ipldtoolerr.Error).Code() {
 		case "":
 			return nil
@@ -83,8 +82,6 @@ func Action_WorkspaceFind(args *cli.Context) error {
 		default:
 			return err // (Wish: the error analysis tool could subtract the cases above from codes still possible in `err` here.)
 		}
-		fmt.Fprintf(args.App.Writer, "%s\n", wspath)
-		return nil
 	default:
 		// I flirted with the idea of accepting a positional arg for where to start the search from,
 		// but this seems like a bad idea; or if we do it, that should be a consistent arg for all commands globally.
