@@ -1,6 +1,6 @@
 module github.com/ipld/go-ipldtool
 
-go 1.17
+go 1.18
 
 // replace github.com/ipld/go-ipld-prime => ../go-ipld-prime
 // replace github.com/ipld/go-ipld-prime/storage/dsadapter => ../go-ipld-prime/storage/dsadapter
