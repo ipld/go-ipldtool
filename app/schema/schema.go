@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -81,7 +80,6 @@ var Cmd_Schema = &cli.Command{
 //   - ipldtool-error-invalid-args -- for incomprehensible or invalid arguments.
 //   - schema-dsl-parse-failed -- if the DSL document didn't parse.
 //   - schema-compile-failed -- if the schema was parsed, but was logically invalid.
-//
 func Action_SchemaParse(args *cli.Context) error {
 	// Parse positional args.
 	var sourceArg string
@@ -258,11 +256,11 @@ func init() {
 }
 
 func copyFile(targetFile, sourceFile string) error {
-	input, err := ioutil.ReadFile(sourceFile)
+	input, err := os.ReadFile(sourceFile)
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(targetFile, input, 0644)
+	err = os.WriteFile(targetFile, input, 0644)
 	if err != nil {
 		return err
 	}

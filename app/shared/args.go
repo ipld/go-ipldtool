@@ -30,7 +30,6 @@ func StringIsPathish(x string) bool {
 // Errors:
 //
 //   - ipldtool-error-invalid-args -- if the input arg can't be made into a readable stream.
-//
 func ParseDataSourceArg(inputArg string) (reader *bufio.Reader, link datamodel.Link, err error) {
 	switch {
 	case inputArg == "-": // stdin
@@ -56,7 +55,6 @@ func ParseDataSourceArg(inputArg string) (reader *bufio.Reader, link datamodel.L
 // Errors:
 //
 //   - ipldtool-error-invalid-args -- if the input arg can't be made into a readable stream.
-//
 func ParseEncoderArg(arg string, defalt string, argName string) (codec.Encoder, error) {
 	if arg == "" {
 		arg = defalt

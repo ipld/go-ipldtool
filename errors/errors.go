@@ -27,7 +27,7 @@ const (
 //
 // Errors:
 //
-//    - param: errcode -- this constant will be the error's (analyzable!) code.
+//   - param: errcode -- this constant will be the error's (analyzable!) code.
 func New(errcode string, msg string) *Error {
 	return &Error{
 		errcode,
@@ -46,7 +46,7 @@ func New(errcode string, msg string) *Error {
 //
 // Errors:
 //
-//    - param: errcode -- this constant will be the error's (analyzable!) code.
+//   - param: errcode -- this constant will be the error's (analyzable!) code.
 func Newf(errcode string, format string, args ...interface{}) *Error {
 	return &Error{
 		errcode,

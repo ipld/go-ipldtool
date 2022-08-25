@@ -31,10 +31,9 @@ const MagicWorkspaceDirname = ".ipld"
 //
 // Errors:
 //
-//  - ipldtool-workspace-not-found -- if we tried everything and can't find a workspace.
-//  - ipldtool-error-no-cwd -- if the cwd can't be found!
-//  - ipldtool-error-io -- if there's an io error during the search (permission denied, etc).
-//
+//   - ipldtool-workspace-not-found -- if we tried everything and can't find a workspace.
+//   - ipldtool-error-no-cwd -- if the cwd can't be found!
+//   - ipldtool-error-io -- if there's an io error during the search (permission denied, etc).
 func Find() (string, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -47,9 +46,8 @@ func Find() (string, error) {
 //
 // Errors:
 //
-//  - ipldtool-workspace-not-found -- if we tried everything and can't find a workspace.
-//  - ipldtool-error-io -- if there's an io error during the search (permission denied, etc).
-//
+//   - ipldtool-workspace-not-found -- if we tried everything and can't find a workspace.
+//   - ipldtool-error-io -- if there's an io error during the search (permission denied, etc).
 func FindFrom(startAt string) (string, error) {
 	// If the override var is present: that's it.
 	if override := os.Getenv("IPLDTOOL_WORKSPACE"); override != "" {

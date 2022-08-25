@@ -15,7 +15,6 @@ import (
 // Errors:
 //
 //   - schema-dsl-parse-failed -- if the DSL document didn't parse.
-//
 func DSLParse(inputName string, input io.Reader) (*schemadmt.Schema, error) {
 	dmt, err := schemadsl.Parse(inputName, input)
 	if err != nil {
@@ -34,7 +33,6 @@ func DSLParse(inputName string, input io.Reader) (*schemadmt.Schema, error) {
 // Errors:
 //
 //   - schema-compile-failed -- if the DSL document didn't parse.
-//
 func SchemaCompile(dmt *schemadmt.Schema) (*schema.TypeSystem, error) {
 	var ts schema.TypeSystem
 	ts.Init()
