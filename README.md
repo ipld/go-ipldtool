@@ -56,6 +56,45 @@ Comparisons
 Please not that this tool has, strictly speaking, nothing to do with the IPFS APIs.  IPFS offers some commands which also work with IPLD data, but they do not necessarily use the same names, or follow the same rules, as the commands in this ipldtool.
 Many IPFS APIs are also philosophically different in that they may try to do networking in order to satisfy your requests; this ipldtool is very explicitly designed *not* to ever initialize new network requests, and works only with local data.
 
+Prerequisit for install
+-----------
+Before install the go-ipld, make sure your computer have Go installations, you can read the official guide on [Go website](https://go.dev/doc/install). 
+
+
+Install
+-----------
+
+1. clone the repository
+
+```bash
+git clone https://github.com/ipld/go-ipldtool.git
+```
+
+2. navigate to the project install directory
+```bash
+cd go-ipldtool/app
+```
+
+3. use Go to install the tools
+```bash
+go install
+```
+
+4. check the ipld commandline installation location in your local path
+```bash
+go env|grep "GOPATH"
+```
+5. you can add the $GOPATH/bin to your shell bin by following scripts
+```bash
+PATH=$PATH:~/your/go/path/bin
+```
+
+6. if you sucessfully install with go, then you can type ipld in the command line environment
+```bash
+ipld
+```
+
+
 
 License
 -------
