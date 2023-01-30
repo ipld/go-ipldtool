@@ -1,3 +1,5 @@
+**This repository is not actively maintained and has therefore been archived. This may be a temporary state until this work can again be prioritised; but in the meantime, contributions and bug reports cannot be reviewed or acted upon so have been disabled.**
+
 go-ipldtool
 ===========
 
